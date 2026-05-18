@@ -1,0 +1,235 @@
+:root {
+    --sidebar-width: 340px;
+    --primary-teal: #0aa5a5;
+    --bg-light: #f8f9fa;
+    --transition-speed: 0.3s;
+}
+
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background-color: var(--bg-light);
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    display: flex; /* Use flex to align sidebar and content side-by-side */
+}
+
+/* --- Sidebar Desktop --- */
+.sidebar-wrapper {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column; /* This allows internal parts to stack */
+    transition: margin-left var(--transition-speed) ease-in-out;
+    z-index: 1050;
+    overflow: hidden; /* Prevents the wrapper itself from scrolling */
+}
+
+/* Collapsed State */
+.sidebar-wrapper.collapsed {
+    margin-left: calc(var(--sidebar-width) * -1);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0;
+    transition: all var(--transition-speed) ease-in-out;
+}
+
+/* Toggle Button Icon Rotation */
+#sidebarToggle i {
+    transition: transform var(--transition-speed);
+}
+
+.sidebar-wrapper.collapsed ~ #main-content #sidebarToggle i, /* If button is inside main */
+#sidebarToggle.active i {
+    transform: rotate(180deg);
+}
+
+/* Hide sidebar toggle on mobile since we use the Hamburger menu */
+@media (max-width: 991.98px) {
+    #sidebarToggle { display: none !important; }
+    .sidebar-wrapper { display: none; } /* Hide the desktop sidebar entirely on mobile */
+    .ms-lg-5 { margin-left: 0 !important; }
+}
+
+/* --- Content Area --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0; /* Prevents flex children from breaking layout */
+    transition: all var(--transition-speed) ease-in-out;
+}
+
+/* --- Topbar --- */
+.topbar {
+    height: 70px;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+/* --- Components --- */
+.card-sheet {
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.card-sheet:hover {
+    border-color: var(--primary-teal);
+    background: #f0fdfd;
+}
+
+.card-sheet.active {
+    border-color: var(--primary-teal);
+    background: #f0fdfd;
+    box-shadow: 0 4px 12px rgba(10, 165, 165, 0.08);
+}
+
+/* --- Folder Styles --- */
+.folder-header:hover {
+    background-color: #e8eaed !important;
+    color: var(--primary-teal) !important;
+}
+
+.folder-content {
+    border-left: 2px solid #dee2e6;
+    margin-left: 8px;
+}
+
+/* --- Iframe Area --- */
+iframe {
+    flex: 1;
+    border: none;
+    width: 100%;
+    height: 100%;
+    background: white;
+}
+
+/* --- Responsive Behavior --- */
+@media (max-width: 991.98px) {
+    .sidebar-wrapper {
+        position: fixed;
+        left: 0;
+        transform: translateX(-100%);
+        display: flex; /* Override previous none to allow JS toggle */
+    }
+    
+    .sidebar-wrapper.mobile-show {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+    
+    .topbar { padding-left: 1rem; }
+}
+
+/* --- Login Overlay --- */
+#loginOverlay {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.btn-teal {
+    background-color: var(--primary-teal);
+    color: white;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+    border: none;
+}
+
+.btn-teal:hover {
+    background-color: #088a8a;
+    color: white;
+}
+
+/* --- Sidebar Toggle Button Styling (Optional but recommended) --- */
+#sidebarToggle {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+#sidebarToggle:hover {
+    color: var(--primary-teal);
+}
+
+/* --- The Menu Scroll Fix --- */
+.menu {
+    flex: 1; /* Takes up all available space between header and profile */
+    overflow-y: auto; /* Enables the scrollbar only for the menu cards */
+    overflow-x: hidden;
+    padding: 1rem;
+    
+    /* Optional: Custom Scrollbar to match your teal theme */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-teal) #f0f0f0;
+}
+
+/* Custom scrollbar for Chrome/Edge/Safari */
+.menu::-webkit-scrollbar {
+    width: 6px;
+}
+.menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.menu::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+.menu::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-teal);
+}
+
+/* --- Folder Content Fix --- */
+.folder-content {
+    border-left: 2px solid #dee2e6;
+    margin-left: 8px;
+    /* Ensure long folder lists don't break flex */
+    height: auto; 
+}
+.text-teal {
+    color: var(--primary-teal) !important;
+}
+.gapi-popup-container,
+iframe[src*="accounts.google.com"] {
+    z-index: 3000 !important;
+}
+
+.picker-dialog,
+.picker-dialog-bg {
+    z-index: 3000 !important;
+}

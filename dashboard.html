@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Dashboard</title>
+    <script src="assets/js/auth_guard.js"></script>
+    <!-- Fonts & Bootstrap 5 -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body class="d-flex">
+
+<!-- TOGGLE BUTTON -->
+<button class="btn btn-primary d-none d-lg-block position-fixed" id="sidebarToggle" style="z-index: 1051; top: 15px; left: 15px;">
+    <i class="bi bi-layout-sidebar-inset"></i>
+</button>
+
+<!-- SIDEBAR (DESKTOP) -->
+<!-- Note: Removed d-none d-lg-flex to let CSS handle it -->
+<div class="sidebar-wrapper" id="sidebar">
+    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+        <!-- Spacing for the toggle button -->
+        <h5 class="fw-bold mb-0 text-primary ms-5"><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</h5>
+    </div>
+
+    <!-- SEARCH BAR SECTION -->
+    <div class="p-3 border-bottom bg-white sticky-top">
+        <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" id="sidebarSearch" class="form-control bg-light border-start-0" placeholder="Search documents...">
+        </div>
+    </div>
+    
+    <div class="menu flex-grow-1 overflow-auto p-3" id="menu">
+        <!-- Cards loaded via index.js -->
+    </div>
+
+    <!-- USER PROFILE SECTION -->
+    <div class="p-3 border-top bg-light">
+        <div id="userInfo" class="d-flex align-items-center mb-3">
+            <img id="userImg" src="" class="rounded-circle me-2" width="40" height="40" alt="Profile">
+            <div class="overflow-hidden">
+                <div id="userName" class="fw-bold small text-dark text-truncate">User Name</div>
+                <div id="userEmail" class="text-muted" style="font-size: 10px;">user@email.com</div>
+            </div>
+        </div>
+        <button class="btn btn-outline-danger btn-sm w-100" onclick="logout()">
+            <i class="bi bi-box-arrow-left me-2"></i> Logout
+        </button>
+    </div>
+</div>
+
+<!-- OFF-CANVAS SIDEBAR (MOBILE) -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="mobileMenuLabel">Select Sheet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="mobileMenuBody">
+        <!-- Mobile cards duplicated here via JS -->
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main-content">
+    <header class="topbar">
+        <div class="d-flex align-items-center">
+            <!-- Mobile Menu Toggle -->
+            <button class="btn btn-light d-lg-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <!-- Indent title on desktop to make room for toggle button -->
+            <h6 class="mb-0 fw-bold text-truncate d-lg-inline-block ms-lg-5" id="title">Select a document</h6>
+        </div>
+        
+        <!-- RIGHT CONTROLS: Badges and Actions Menu -->
+        <div class="d-flex align-items-center gap-2">
+            <!-- Sync Status Badge -->
+            <span id="syncStatus" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill d-none d-sm-flex align-items-center px-3 py-2">
+                <i class="bi bi-cloud-check me-2"></i> Synced
+            </span>
+
+            <!-- MANAGE SHEETS DROPDOWN MENU -->
+            <div class="dropdown" id="manageSheetsMenu">
+                <button class="btn btn-light border btn-sm d-flex align-items-center px-3 py-2 rounded-pill fw-semibold text-secondary" 
+                        type="button" 
+                        id="manageDropdownBtn" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                    <i class="bi bi-gear-fill me-2 text-teal"></i>
+                    <span class="d-none d-md-inline">Manage Sheets</span>
+                    <i class="bi bi-chevron-down ms-2 small opacity-70"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="manageDropdownBtn" style="min-width: 200px; font-size: 13px;">
+                    <li class="dropdown-header text-uppercase tracking-wider opacity-70" style="font-size: 10px; font-weight: 700;">Sheet Actions</li>
+                    <!-- <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center" href="">
+                            <i class="bi bi-plus-circle me-2 text-primary fs-6"></i> Add New Sheet
+                        </a>
+                    </li> -->
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center" href="manage_documents.html">
+                            <i class="bi bi-folder-plus me-2 text-warning fs-6"></i> Manage Folders
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider opacity-50"></li>
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center" href="#" onclick="handleForceSync()">
+                            <i class="bi bi-arrow-clockwise me-2 text-success fs-6"></i> Force Re-Sync
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    
+    <iframe id="frame" src="about:blank"></iframe>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/dashboard.js"></script>
+
+</body>
+</html>

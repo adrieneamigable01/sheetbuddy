@@ -1,0 +1,40 @@
+   .drag-area { 
+            min-height: 80px; 
+            border: 2px dashed #e9ecef; 
+            border-radius: 8px; 
+            padding: 10px; 
+            background: #fdfdfd; 
+            transition: background 0.2s;
+        }
+        .drag-area:hover { background: #f8f9fa; }
+        .drag-item { 
+            cursor: grab; 
+            background: white; 
+            border: 1px solid #dee2e6; 
+            padding: 12px; 
+            margin-bottom: 8px; 
+            border-radius: 6px; 
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .drag-item:active { cursor: grabbing; }
+        .drag-item i { color: #adb5bd; margin-right: 10px; }
+        .folder-container { 
+            background: #fff; 
+            border: 1px solid #dee2e6; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            overflow: hidden;
+        }
+        .sortable-ghost { opacity: 0.4; background: #e2e6ea !important; }
+        .hover-lift:hover { transform: translateY(-2px); transition: 0.2s; }
+        /* Force Google Picker to show above Bootstrap Modals */
+        .picker-dialog {
+            z-index: 3000 !important; /* Extremely high to beat any modal */
+        }
+
+        /* This ensures the backdrop doesn't block the picker */
+        .picker-dialog-bg {
+            z-index: 2999 !important;
+        }

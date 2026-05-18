@@ -1,0 +1,141 @@
+ :root {
+            --brand-primary: #0aa5a5;
+            --brand-dark: #1e293b;
+            --brand-light: #f8fafc;
+            --brand-border: #e2e8f0;
+        }
+
+        body { 
+            background-color: var(--brand-light); 
+            font-family: 'Inter', sans-serif; 
+            color: #334155;
+            letter-spacing: -0.01em;
+        }
+
+        /* Clean Header */
+        .page-header {
+            background: #fff;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--brand-border);
+            margin-bottom: 3rem;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: var(--brand-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 1.25rem;
+        }
+
+        /* Minimal Card Table */
+        .table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--brand-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            padding: 1.5rem;
+        }
+
+        .table thead th {
+            background: transparent;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--brand-light);
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--brand-light);
+        }
+
+        .id-badge {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        /* Soft Buttons */
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--brand-primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #088a8a;
+            box-shadow: 0 4px 12px rgba(10, 165, 165, 0.25);
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--brand-border);
+            color: #64748b;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #f1f5f9;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        /* Modal Refinement */
+        .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--brand-light);
+        }
+
+        .modal-body { padding: 2rem; }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 1px solid var(--brand-border);
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(10, 165, 165, 0.15);
+            border-color: var(--brand-primary);
+        }
+
+        /* DataTables UI Fix */
+        .dataTables_info, .dataTables_length, .dataTables_filter {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .paginate_button.page-item.active .page-link {
+            background-color: var(--brand-primary) !important;
+            border-color: var(--brand-primary) !important;
+        }
