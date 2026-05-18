@@ -14,6 +14,26 @@ $folderName = $data['name'];
 $userEmail = $data['email'];
 
 try {
+
+     if (!empty($userEmail)) {
+        // Query to check if the name is taken by another folder ID owned by the same email
+        $checkStmt = $conn->prepare("SELECT id FROM user_folders WHERE folder_name = ? AND user_email = ?");
+        $checkStmt->bind_param("ss", $folderName, $userEmail);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+        
+        if ($checkStmt->num_rows > 0) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => "You already have a folder named '" . htmlspecialchars($folderName) . "'. Please use a different name."
+            ]);
+            $checkStmt->close();
+            exit;
+        }
+        $checkStmt->close();
+    }
+
+
     $stmt = $conn->prepare("INSERT INTO user_folders (user_email, folder_name) VALUES (?, ?)");
     $stmt->bind_param("ss", $userEmail, $folderName);
     

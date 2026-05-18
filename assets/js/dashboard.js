@@ -2,7 +2,7 @@
 let SHEETS = [];
 let token = localStorage.getItem("g_access_token");
 
-// IMMEDIATE CHECK: If no token or expired, kick to login.php
+// IMMEDIATE CHECK: If no token or expired, kick to index.html
 (function authGuard() {
     const expiry = localStorage.getItem("g_token_expiry");
     if (!token || !expiry || Date.now() > parseInt(expiry)) {

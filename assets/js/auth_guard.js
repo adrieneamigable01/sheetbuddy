@@ -13,6 +13,6 @@
         localStorage.removeItem("g_user_data");
 
         // Force user back to login page
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     }
 })();

@@ -28,9 +28,9 @@ function renderManagement(folders, docs) {
     const adminList = document.getElementById("adminUngroupedList");
     const userList = document.getElementById("userUngroupedList");
     
-    folderList.innerHTML = "";
-    adminList.innerHTML = "";
-    userList.innerHTML = "";
+    if (folderList) folderList.innerHTML = "";
+    if (adminList) adminList.innerHTML = "";
+    if (userList) userList.innerHTML = "";
 
     const foldersMap = {};
     folders.forEach(f => { 
@@ -47,9 +47,8 @@ function renderManagement(folders, docs) {
 
     docs.forEach(d => {
         // 2. DEDUPLICATION LOGIC:
-        // If this is a user-added doc, but the ID is already in the admin list, SKIP IT.
         if (d.source === 'user' && adminSheetIds.has(d.google_sheet_id)) {
-            return; // Exit this loop iteration (effectively hiding the duplicate)
+            return; 
         }
 
         if (d.folder_id && foldersMap[d.folder_id]) {
@@ -63,25 +62,157 @@ function renderManagement(folders, docs) {
         }
     });
 
-    // --- Render logic remains the same ---
+    // 3. Render logic with Folder Editing Enabled
     Object.keys(foldersMap).forEach(fId => {
         const folder = foldersMap[fId];
-        folderList.innerHTML += `
-            <div class="folder-container p-3 mb-3" data-folder-id="${fId}">
-                <div class="fw-bold mb-2 text-primary">
-                    <i class="bi bi-folder2"></i> ${folder.name}
+        
+        const folderContainer = document.createElement("div");
+        folderContainer.className = "folder-container p-3 mb-3";
+        folderContainer.setAttribute("data-folder-id", fId);
+
+        folderContainer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <!-- Editable Header Area -->
+                <div class="folder-title-wrapper d-flex align-items-center fw-bold text-primary flex-grow-1">
+                    <i class="bi bi-folder2 me-2"></i> 
+                    <span class="folder-name-text" style="font-size: 14px;">${folder.name}</span>
+                    <input type="text" class="form-index form-control form-control-sm d-none ms-1 folder-edit-input" 
+                           value="${folder.name}" style="max-width: 200px; font-weight: 600;">
                 </div>
-                <div class="drag-area" data-folder-id="${fId}">
-                    ${folder.docs.map(d => renderDragItem(d)).join('')}
+                
+                <!-- Action Controls -->
+                <div class="folder-actions d-flex gap-1">
+                    <button class="btn btn-link link-secondary btn-sm p-1 edit-folder-btn" onclick="toggleFolderEdit('${fId}')" title="Rename Folder">
+                        <i class="bi bi-pencil-square fs-6"></i>
+                    </button>
+                    <button class="btn btn-link link-success btn-sm p-1 save-folder-btn d-none" onclick="saveFolderRename('${fId}')" title="Save Changes">
+                        <i class="bi bi-check-circle-fill fs-6"></i>
+                    </button>
                 </div>
-            </div>`;
+            </div>
+            
+            <div class="drag-area" data-folder-id="${fId}">
+                ${folder.docs.map(d => renderDragItem(d)).join('')}
+            </div>
+        `;
+        
+        if (folderList) folderList.appendChild(folderContainer);
     });
 
-    adminList.innerHTML = adminUngrouped.map(d => renderDragItem(d)).join('');
-    userList.innerHTML = userUngrouped.map(d => renderDragItem(d)).join('');
+    if (adminList) adminList.innerHTML = adminUngrouped.map(d => renderDragItem(d)).join('');
+    if (userList) userList.innerHTML = userUngrouped.map(d => renderDragItem(d)).join('');
 
     document.querySelectorAll('.drag-area').forEach(el => {
         new Sortable(el, { group: 'shared', animation: 150, ghostClass: 'sortable-ghost' });
+    });
+}
+
+// Switches visibility states seamlessly between display name text and the editing input field
+function toggleFolderEdit(folderId) {
+    const container = document.querySelector(`[data-folder-id="${folderId}"]`);
+    if (!container) return;
+
+    const nameText = container.querySelector(".folder-name-text");
+    const editInput = container.querySelector(".folder-edit-input");
+    const editBtn = container.querySelector(".edit-folder-btn");
+    const saveBtn = container.querySelector(".save-folder-btn");
+
+    nameText.classList.toggle("d-none");
+    editInput.classList.toggle("d-none");
+    editBtn.classList.toggle("d-none");
+    saveBtn.classList.toggle("d-none");
+
+    if (!editInput.classList.contains("d-none")) {
+        editInput.focus();
+        editInput.select();
+        
+        // Listen for Enter keypress directly inside the text input box
+        editInput.onkeydown = function(e) {
+            if (e.key === "Enter") saveFolderRename(folderId);
+            if (e.key === "Escape") toggleFolderEdit(folderId); // Revert on Esc
+        };
+    }
+}
+
+// Commits the modified validation strings to local states and triggers database saves
+// RENAME FOLDER - DATABASE SYNCED
+function saveFolderRename(folderId) {
+    const container = document.querySelector(`[data-folder-id="${folderId}"]`);
+    if (!container) return;
+
+    const editInput = container.querySelector(".folder-edit-input");
+    const newName = editInput.value.trim();
+
+    if (!newName) {
+        Swal.fire('Error', 'Folder name cannot be left blank.', 'error');
+        return;
+    }
+
+    $.ajax({
+        url: 'api/update_folder_data.php', // Match your exact routing path
+        method: 'POST',
+        data: {
+            id: folderId,
+            folder_name: newName,
+            email: userData.email
+        },
+        dataType: 'json',
+        success: function(response) {
+            // Evaluates success boolean sent back by the server instance
+            if (response.success) {
+                const nameText = container.querySelector(".folder-name-text");
+                nameText.innerText = newName;
+                toggleFolderEdit(folderId);
+
+                // Dynamically uses response message string from database array logic
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.message || 'Folder renamed successfully!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                // If backend validation fails, displays the explicit error from PHP
+                Swal.fire('Database Error', response.message || 'Failed to update folder.', 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire('Server Connection Error', 'Could not reach database endpoint context.', 'error');
+        }
+    });
+}
+
+// DRAG AND DROP REARRANGEMENT - DATABASE SYNCED
+function saveDocumentLocation(documentId, folderId) {
+    $.ajax({
+        url: 'update_folder', // Match your exact routing path
+        method: 'POST',
+        data: {
+            id: documentId,
+            folder_id: folderId
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.message || 'Placement updated!',
+                    showConfirmButton: false,
+                    timer: 1200
+                });
+            } else {
+                // Displays explicit engine failure reasoning from server records
+                Swal.fire('Rearrangement Failed', response.message || 'Database rejected relocation state.', 'error');
+                // Re-sync UI state here if needed (e.g., window.location.reload())
+            }
+        },
+        error: function() {
+            Swal.fire('Network Interface Error', 'Server failed to save new placement rules.', 'error');
+        }
     });
 }
 
@@ -296,14 +427,58 @@ function pickerCallback(data) {
 }
 
 async function createNewFolder() {
-    const { value: name } = await Swal.fire({ title: 'New Folder', input: 'text', inputPlaceholder: 'Folder Name' });
-    if (!name) return;
-    await fetch('api/create_folder.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email: userData.email })
+    const { value: name } = await Swal.fire({ 
+        title: 'New Folder', 
+        input: 'text', 
+        inputPlaceholder: 'Folder Name',
+        showCancelButton: true,
+        confirmButtonColor: '#0aa5a5'
     });
-    initManagement();
+    
+    // Exit if user cancels or leaves input blank
+    if (!name || !name.trim()) return; 
+
+    try {
+        const response = await fetch('api/create_folder.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                name: name.trim(), 
+                email: userData.email 
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.status && result.status == "success") {
+            // Display successful database creation toast message
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: result.message || 'Folder created successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Refresh layout matrix lists structure
+            initManagement();
+        } else {
+            // Displays specific error messaging sent back from PHP (e.g. Duplicates)
+            Swal.fire(
+                'Folder Creation Failed', 
+                result.error || result.message || 'An error occurred while saving.', 
+                'warning'
+            );
+        }
+
+    } catch (error) {
+        Swal.fire(
+            'Server Error', 
+            'Could not establish a clean data connection stream to the backend API.', 
+            'error'
+        );
+    }
 }
 
 
