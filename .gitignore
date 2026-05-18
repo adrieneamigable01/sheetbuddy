@@ -1,2 +1,4 @@
 # Ignore the local secret configuration file
 config.js
+# Ignore database config
+api/db_config.php
