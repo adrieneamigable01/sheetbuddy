@@ -1,10 +1,18 @@
 <?php
 // db_config.php
+$isLive = true;
 
 $host = 'localhost';
 $user = 'root';
 $pass = '';
 $db   = 'db_docsmanagement';
+
+if(!$isLive){
+    $host = 'localhost';
+    $user = 'u859692781_sheetbuddy';
+    $pass = 'sh33tBuddy051826';
+    $db   = 'u859692781_sheetbuddy';
+}
 
 // Enable error reporting for MySQLi
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
