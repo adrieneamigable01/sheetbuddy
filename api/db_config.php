@@ -7,7 +7,7 @@ $user = 'root';
 $pass = '';
 $db   = 'db_docsmanagement';
 
-if(!$isLive){
+if($isLive){
     $host = 'localhost';
     $user = 'u859692781_sheetbuddy';
     $pass = 'sh33tBuddy051826';
